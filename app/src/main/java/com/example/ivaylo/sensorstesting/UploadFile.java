@@ -21,10 +21,12 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -114,6 +116,11 @@ public class UploadFile extends AsyncTask<String, Void, String> {
                         e.printStackTrace();
                     }
                     Log.v(Constants.TAG, "Response string: " +  responseStr);
+
+                    //truncate file
+                    FileChannel outChan = new FileOutputStream(textFile, true).getChannel();
+                    outChan.truncate(0);
+                    outChan.close();
 
                     return responseStr;
                 }

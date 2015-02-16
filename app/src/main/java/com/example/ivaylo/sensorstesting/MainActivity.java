@@ -8,6 +8,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -65,7 +67,6 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
         //configure accelerometer
         initAccelerometer();
-
     }
 
     private void startGPSservice() {
@@ -296,22 +297,41 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
                 //TODO stop accelerometer recording when saving to file is implemented
 
-                //upload GPS data
-                try {
-                    String result = new UploadFile().execute(Constants.uploadReportURL).get();
+                //check network state -> allow upload only through WIFI
+                ConnectivityManager cm =
+                        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-                    if(result.equals(Constants.responseSuccessString)) {
-                        Toast.makeText(this, getString(R.string.send_report_success), Toast.LENGTH_LONG).show();
-                    }
-                    else {
-                        Toast.makeText(this, getString(R.string.send_report_fail), Toast.LENGTH_LONG).show();
-                    }
+                NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                boolean isConnected = activeNetwork != null &&
+                        activeNetwork.isConnectedOrConnecting();
 
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
+                boolean isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+
+                if ( isConnected && isWiFi ){
+                    //upload GPS data
+                    try {
+                        String result = new UploadFile().execute(Constants.uploadReportURL).get();
+
+                        if(result.equals(Constants.responseSuccessString)) {
+                            Toast.makeText(this, getString(R.string.send_report_success), Toast.LENGTH_LONG).show();
+
+                            //truncate gps data file
+
+                        }
+                        else {
+                            Toast.makeText(this, getString(R.string.send_report_fail), Toast.LENGTH_LONG).show();
+                        }
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Toast.makeText(this, getString(R.string.send_report_requirements), Toast.LENGTH_LONG).show();
                 }
+
+
 
                 break;
         }

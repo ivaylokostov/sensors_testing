@@ -19,5 +19,9 @@
     <string name="lon">Lon:</string>
     <string name="gps_data">GPS data</string>
     <string name="speed_kmh">Speed (km/h):</string>
+    <string name="send_report_requirements">Please, use a working WIFI connection to upload your report.</string>
+
+    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyB4zpX3yvjDVhewTST7bK-QHf51hsx1Wdk</string>
+    <string name="map_marker_title_1">Marker title...</string>
 
 </resources>

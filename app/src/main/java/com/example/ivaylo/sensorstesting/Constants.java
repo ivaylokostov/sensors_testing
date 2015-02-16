@@ -14,6 +14,7 @@ public class Constants {
 
     public static File externalStorageDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     public final static String outFile = "gps_data.csv";
+    public final static String testFile = "gps_data_16_02.csv";
     public static final String uploadReportURL = "http://apps.noveporter.com/android_testing_app/save_file.php";
     public static final String responseSuccessString = "Success";
 }

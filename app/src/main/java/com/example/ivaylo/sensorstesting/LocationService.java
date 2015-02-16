@@ -54,7 +54,7 @@ public class LocationService extends Service
     public MyLocationListener listener;
     public Location previousBestLocation = null;
 
-    Intent intent;
+    private Intent broadCastIntent;
 
     public LocationService() {}
 
@@ -73,7 +73,7 @@ public class LocationService extends Service
         serviceLooper = thread.getLooper();
         serviceHandler = new ServiceHandler(serviceLooper);
 
-        intent = new Intent(BROADCAST_ACTION);
+        broadCastIntent = new Intent(BROADCAST_ACTION);
     }
 
     @Override
@@ -86,6 +86,7 @@ public class LocationService extends Service
         Message msg = serviceHandler.obtainMessage();
         msg.arg1 = startId;
         serviceHandler.sendMessage(msg);*/
+
 
 
         if ( intent != null
@@ -103,6 +104,22 @@ public class LocationService extends Service
     public void runListener() {
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+        if (lastKnownLocation != null) {
+
+            Log.d(Constants.TAG, "lastKnownLocation: " + lastKnownLocation.toString());
+
+            if ( lastKnownLocation != null && broadCastIntent != null ) {
+                broadCastIntent.putExtra("Latitude", lastKnownLocation.getLatitude());
+                broadCastIntent.putExtra("Longitude", lastKnownLocation.getLongitude());
+                broadCastIntent.putExtra("Speed", 0);
+                sendBroadcast(broadCastIntent);
+                Log.v(Constants.TAG, "Last known loc: " + lastKnownLocation.getLatitude() + " " + lastKnownLocation.getLongitude());
+            }
+        }
+
         listener = new MyLocationListener();
         //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10 * 1000L, 0L, listener);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5 * 1000L, 0L, listener);
@@ -230,10 +247,10 @@ public class LocationService extends Service
                 }
 
                 //Uncomment to send broadcast to activity
-                intent.putExtra("Latitude", loc.getLatitude());
-                intent.putExtra("Longitude", loc.getLongitude());
-                intent.putExtra("Speed", (int) ((loc.getSpeed()*3600)/1000));
-                sendBroadcast(intent);
+                broadCastIntent.putExtra("Latitude", loc.getLatitude());
+                broadCastIntent.putExtra("Longitude", loc.getLongitude());
+                broadCastIntent.putExtra("Speed", (int) ((loc.getSpeed()*3600)/1000));
+                sendBroadcast(broadCastIntent);
             }
 
         }
